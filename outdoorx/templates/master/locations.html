@@ -1,0 +1,294 @@
+{% extends 'master/base.html'%}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/location.css' %}" />
+<html>
+  <head>
+    <script>
+      var markers=[];
+      var latitude = [];
+      var longitude = [];
+      var title = [];
+      var description = [];
+      var data = [];
+    </script>
+    {% for location in locations %} 
+    <script>
+        longitude.push("{{ location.longitude }}");
+        latitude.push("{{ location.latitude }}");
+        title.push("{{ location.title }}");
+        latitude.push("{{ location.latitude }}");
+        markers.push({
+        "title": "{{ location.title }}",
+        "latitude": "{{ location.latitude }}",
+        "longitude": "{{ location.longitude }}",
+        "description": "{{ location.description }}",
+        "type_of_ex": "{{ location.type_of_excercise }}",
+        "type_of_location": "{{ location.type_of_location }}"
+      },);
+      data.push({
+        "title": "{{ location.title }}",
+        "latitude": "{{ location.latitude }}",
+        "longitude": "{{ location.longitude }}",
+        "description": "{{ location.description }}",
+        "type_of_ex": "{{ location.type_of_excercise }}",
+        "type_of_location": "{{ location.type_of_location }}",
+        "id" : "{{ location.id|title }}"
+      },);
+    </script>
+    {% endfor %}
+    <style>
+      /* Set the size of the div element that contains the map */
+     #map {
+       height: 400px;  /* The height is 400 pixels */
+       width: 100%;
+       align-content: center;  /* The width is the width of the web page */
+      }  
+   </style>
+  </head>
+  <body>
+    <section id="main" style="margin-bottom: -100px; margin-top: 100px;">
+      <div class="inner">
+        <header class="major special">
+          <h1 style="text-align: center; font-family: potra; potra;">locations</h1>
+          <p style="text-align: center;">search a place and attributes of the location</p>
+        </header>
+      </div>
+    </section>
+    <!--The div element for the map -->
+<section id="three">
+  <div id="content">
+      <input id="pac-input" class="controls" type="text" placeholder="Where?">
+      <ul style="text-align: center;" >Examples: "New York", "Near Me" or a Postcode</ul>
+
+      <form id="search-locations" >
+        <input id ="search-input" type="text" placeholder="What?">
+        <ul style="text-align: center">Examples: "Calisthenics", "Skate Park", "Pull-up bar" </ul>
+      </form>
+    
+  
+    <p id="mapcenter" style="margin: auto; display: none;">Map Center</p>
+    <p id="placemapcenter" style="margin: auto; display: none;">Place Map Center</p>
+    <p id="lat" style="margin: auto; display: none;">lat</p>
+  </div>
+</section>
+    <section id="search-content" style="background-color: #333333; padding: 50px;">
+      <div id="content">
+        <div id="map"></div>
+          <div id="location-list" style="display: none; margin-top: 50px">
+            <ul>
+              {% for location in locations %}
+              <a href="{% url 'location' location.id %}">
+              <li style="margin-bottom:  10px;">
+                
+                  <span class="name">
+                  {{location.title}}
+                  <br>
+                  {{location.description}}
+                  <br>
+                  {{location.type_of_excercise}}
+                  <br>
+                  {{location.type_of_location}}
+                  <br>
+                  {{location.id}}
+                  </span>
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+        latitude;
+        longitude;
+        title;
+        description;
+        markers;
+        var amarkers= markers;
+        var bounds;
+        var center;
+
+        
+        function mySearch2(){
+        var input = document.getElementById('search-input');
+        var filter = input.value.toUpperCase();
+        newArray = filterByValue(newArray, filter);
+      };
+        function filterByValue(array, string) {
+              return array.filter(o =>
+              Object.keys(o).some(k => o[k].toLowerCase().includes(string.toLowerCase())));
+        };
+        const list = document.querySelector('#location-list ul');
+        // remake of searchform using ninja
+        var mapcenter5 = {lat:-34.92849890000001, lng:138.6007456 }
+        const searchBar = document.forms['search-locations'].querySelector('input');
+        searchBar.addEventListener('keyup', function(e){
+          bounds = map.getZoom();
+          center = map.getCenter();
+          initMap();
+          map.setCenter(center);
+          map.setZoom(bounds);
+          document.getElementById("location-list").style.display = "block";
+          document.getElementById("map").style.display = "block";
+          document.getElementById("search-content").style.display = "block";
+          const term = e.target.value.toLowerCase();
+          const locations = list.getElementsByTagName('li');
+          Array.from(locations).forEach(function(location){
+            const locationbody = location.firstElementChild.textContent;
+            if(locationbody.toLowerCase().indexOf(term)!= -1){
+              location.style.display = 'block';
+            } else {
+              location.style.display = 'none';
+            }
+          });
+          amarkers = filterByValue(markers, term);
+        });
+                  
+        function setMarkers(array){for (var i = 0; i < array.length; i++) {
+                    var data = array[i];
+                    var marker = new google.maps.Marker({
+                      position: {lat: parseFloat(data.latitude), lng: parseFloat(data.longitude)},
+                      map: map,
+                      title: data.title,
+                      icon: 'https://img.icons8.com/ios/50/000000/marker-x.png'
+                    });
+                    (function (marker, data) {
+                          google.maps.event.addListener(marker, "click", function (e) {
+                              //Wrap the content inside an HTML DIV in order to set height and width of InfoWindow.
+                              infoWindow.setContent("<div style = 'width:200px;min-height:40px'>" +'<h3>'+ data.title +'</h3>' + '<body>' + data.description + '</body>' + "</div>");
+                              infoWindow.open(map, marker);
+                          });
+                      })(marker, data)}};
+          /// instead load all markers within li tags then filter by li tags instead of filtering the array/list 
+          ///ninja tutorial previous one to see his method for creating separate li for book list
+        
+          function setArray(){for (var i = 0; i < markers.length; i++) {
+                    var data = markers[i];
+                    var marker = new google.maps.Marker({
+                      position: {lat: parseFloat(data.latitude), lng: parseFloat(data.longitude)},
+                      map: map,
+                      title: data.title
+                    });
+                    (function (marker, data) {
+                          google.maps.event.addListener(marker, "click", function (e) {
+                              //Wrap the content inside an HTML DIV in order to set height and width of InfoWindow.
+                              infoWindow.setContent("<div style = 'width:200px;min-height:40px'>" +'<h3>'+ data.title +'</h3>' + '<body>' + data.description + '</body>' + "</div>");
+                              infoWindow.open(map, marker);
+                          });
+                      })(marker, data); 
+                  };
+                  };
+        var map;
+        var mapcenteroutput = {lat: 0, lng:0};
+                
+        function initMap() { 
+          map = new google.maps.Map(document.getElementById('map'), {
+            center: mapcenteroutput,
+            zoom: 1,
+            mapTypeId: 'roadmap',
+          });
+
+          var infoWindow = new google.maps.InfoWindow();
+
+          for (var i = 0; i < amarkers.length; i++) {
+            var data = amarkers[i];
+            data.id = i
+            var marker = new google.maps.Marker({
+              position: {lat: parseFloat(data.latitude), lng: parseFloat(data.longitude)},
+              map: map,
+              title: data.title,
+              icon: 'https://img.icons8.com/ios/50/000000/marker-x.png'
+            });
+            (function (marker, data) {
+                  google.maps.event.addListener(marker, "click", function (e) {
+                      //Wrap the content inside an HTML DIV in order to set height and width of InfoWindow.
+                      infoWindow.setContent("<div style = 'width:200px;min-height:40px'>" + '<a href="locations/' + data.id + '">' +
+                                            '<p style="font-weight: bold;">'+ data.title + '--' + data.id +
+                                            '</br>' + '</p>' + '<p style="font-weight: light;">' + 'Excercise Type:' + '<p style="font-weight: bold;">' + data.type_of_ex + 
+                                            '<p style="font-weight: light;">' + 'Location Type:' + '<p style="font-weight: bold;">' + data.type_of_location + '</p>' + 
+                                            '<p style="font-weight: light;">' + 'Coordinates:' + '<p style="font-weight: bold;">' + parseFloat(data.latitude) + ' ,' + parseFloat(data.longitude) + '</a>' + '</body>' + "</div>");
+                      infoWindow.open(map, marker);
+                  });
+              })(marker, data); 
+          }
+          var card = document.getElementById('pac-card');
+          var input = document.getElementById('pac-input');
+          var types = document.getElementById('type-selector');
+          var strictBounds = document.getElementById('strict-bounds-selector');
+
+          map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
+          var autocomplete = new google.maps.places.Autocomplete(input);
+          // Bind the map's bounds (viewport) property to the autocomplete object,
+          // so that the autocomplete requests use the current map bounds for the
+          // bounds option in the request.
+          autocomplete.bindTo('bounds', map);
+
+          // Set the data fields to return when the user selects a place.
+          autocomplete.setFields(
+              ['address_components', 'geometry', 'icon', 'name']);
+          var markercenter = new google.maps.Marker({
+            map: map,
+            anchorPoint: new google.maps.Point(0, -29)
+          });
+          
+          autocomplete.addListener('place_changed', function() {
+            markercenter.setVisible(false);
+            var place = autocomplete.getPlace();
+            document.getElementById('map').style.display = "block";
+            map.setCenter(place.geometry.location);
+            if (!place.geometry) {
+              // User entered the name of a Place that was not suggested and
+              // pressed the Enter key, or the Place Details request failed.
+              window.alert("No details available for input: '" + place.name + "'");
+              return;
+            }
+
+
+            // If the place has a geometry, then present it on a map.
+            if (place.geometry.viewport) {
+              map.fitBounds(place.geometry.viewport);
+            } else {
+              map.setCenter(place.geometry.location);
+              map.setZoom(17);  // Why 17? Because it looks good.
+            }
+
+
+            var address2 = '';
+            if (place.address_components) {
+              address2 = [
+                (place.geometry.location || ''),
+              ].join(' ');
+            }
+            var address = '';
+            if (place.address_components) {
+              address = [
+                (place.address_components[0] && place.address_components[0].short_name || ''),
+                (place.address_components[1] && place.address_components[1].short_name || ''),
+                (place.address_components[2] && place.address_components[2].short_name || ''),
+                (place.geometry.location || ''),
+              ].join(' ');
+            }
+            var mapcenter2 = address2.replace(/[()]/g, '');
+            myArray= mapcenter2.split(',');
+            lat2= myArray[0];
+            lng2=myArray[1];
+            mapcenteroutput = {lat: parseFloat(lat2), lng: parseFloat(lng2)};
+            document.getElementById("lat").innerHTML = lat2 + "<br>" + lng2;
+            
+            document.getElementById("mapcenter").innerHTML = mapcenteroutput;
+            document.getElementById("location-list").style.display = "block";
+          });
+          
+        };
+      
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWr2wYPjowOdfbiaxKMaY9-C0BLkn4Xts&libraries=places&callback=initMap"
+         async defer></script>
+</section>
+</body>
+</html>
+
+{% endblock content %}

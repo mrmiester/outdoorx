@@ -1,0 +1,196 @@
+{% extends 'master/base.html'%}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}" />
+<style>
+
+  @import url(https://fonts.googleapis.com/css?family=Lora|Roboto:400,500);
+
+</style>
+  <head>
+    <script>
+      var markers=[];
+      var latitude = [];
+      var longitude = [];
+      var title = [];
+      var description = [];
+    </script>
+    {% for location in locations %} 
+    <script>
+        longitude.push("{{ location.longitude }}");
+        latitude.push("{{ location.latitude }}");
+        title.push("{{ location.title }}");
+        latitude.push("{{ location.latitude }}");
+        markers.push({
+        "title": "{{ location.title }}",
+        "latitude": "{{ location.latitude }}",
+        "longitude": "{{ location.longitude }}",
+        "description": "{{ location.description }}",
+      },)
+    </script>
+    {% endfor %}
+    <style>
+       /* Set the size of the div element that contains the map */
+      #map {
+        height: 400px;  /* The height is 400 pixels */
+        width: 60%;  /* The width is the width of the web page */
+        align-content: center;
+       }
+    </style>
+  </head>
+    <!-- Banner -->
+    <section id="banner">
+      <div class="inner" >
+        <h1>OutDoorEx: <span>Find Free Workout<br/>
+          Locations Near You.</span></h1>
+        <ul class="actions">
+          <li><a href="#one" class="button alt">About</a></li>
+          <li><a href="{% url 'locations' %}" class="button alt">Search Locations</a></li>
+        </ul>
+      </div>
+    </section>
+  
+    <!-- One -->
+    <section id="one">
+      <div class="inner">
+        <header>
+          <h2 style="font-family: potra; potra">What is OutDoorEx?</h2>
+        </header>
+        <p style="font-weight: bold">A collection of outdoor excercise locations from calisthenics gyms to skate parks. Become a part of the community to add new locations, discuss workouts and be apart of deciding how the platform grows. </p>
+        <ul style="margin-top: 50px;" class="actions">
+          <li><a href="{% url 'users:register' %}" class="button alt">Sign Up</a></li>
+        </ul>
+      </div>
+    </section>
+    <style>
+      #content {
+        width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      #map{
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex
+      }
+      .row{
+        width 95%;
+        display: flex;
+        flex-wrap: wrap;
+    </style>
+    <section id="three" style="background-color: #333333;">
+    <h3 style="font-family: potra; potra; font-size: 30px"><center>Some New Locations</center></h3>
+    <!--The div element for the map -->
+    <div id="content">
+    <div id="map"></div>
+    </div>
+    <script>
+      latitude;
+      longitude;
+      title;
+      description;
+      markers;
+      var map;
+      function initMap() {
+        map = new google.maps.Map(
+            document.getElementById('map'),
+            {center: new google.maps.LatLng(0,0), zoom: 1
+            });
+
+        var infoWindow = new google.maps.InfoWindow();
+
+        for (var i = 0; i < markers.length; i++) {
+          var data = markers[i];
+          var marker = new google.maps.Marker({
+            position: {lat: parseFloat(data.latitude), lng: parseFloat(data.longitude)},
+            map: map,
+            title: data.title,
+            icon: 'https://img.icons8.com/ios/50/000000/marker-x.png'
+          });
+          (function (marker, data) {
+                google.maps.event.addListener(marker, "click", function (e) {
+                    //Wrap the content inside an HTML DIV in order to set height and width of InfoWindow.
+                    infoWindow.setContent("<div style = 'width:200px;min-height:40px'>" +'<h3>'+ data.title +'</h3>' + '<body>' + data.description + '</body>' + "</div>");
+                    infoWindow.open(map, marker);
+                });
+            })(marker, data); 
+        }
+    }
+
+    </script>
+
+
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWr2wYPjowOdfbiaxKMaY9-C0BLkn4Xts&callback=initMap">
+</script>
+<section id="one">
+      <div class="inner">
+  <div class="row" style="margin-right: auto; margin-left: auto; display: flex">
+      {% for location in locations %}
+      <div class="column">
+        <div class="my-2 mx-auto p-relative bg-white shadow-1 blue-hover" style="width:300px ; overflow: hidden; border-radius: 1px; height: 500px;">
+        {% if location.images.first %}
+          <img src="{{ location.images.first.image.url }}" alt="location image"
+              class="d-block w-full" style="height: 200px; width: 300px; overflow: hidden; object-fit: cover;">
+              {% else %}
+              <img src="{% static "outdoorxlogo.png" %}" alt="location image"
+              class="d-block w-full" style="height: 200px; width: 300px; overflow: hidden; object-fit: cover;">
+              {% endif %}
+    <div class="px-2 py-2">
+      <p class="mb-0 small font-weight-medium text-uppercase mb-1 text-muted lts-2px">
+        Location type: {{ location.type_of_location}}
+      </p>
+      <p class="mb-0 small font-weight-medium text-uppercase mb-1 text-muted lts-2px">
+        Named: {{ location.title}}
+      </p>
+      <p class="mb-0 small font-weight-medium text-uppercase mb-1 text-muted lts-2px">
+        Description: <br>{{location.description}}
+      </p>
+
+    </div>
+
+    <a href="{% url 'location' location.id %}" class="text-uppercase d-inline-block font-weight-medium lts-2px ml-2 mb-2 text-center styled-link" style="position: absolute; bottom: 0;">
+      Find out more...
+    </a>
+
+        
+
+  </div>
+  </div>
+      {% endfor %}
+  </div>
+  </div>
+</section>
+
+</section>
+<footer>
+<section id="footer">
+      <div class="inner">
+        <header>
+          <h2 style="font-family: potra;">Get in touch</h2>
+          <p style="color: #FFF;">We would love to hear back from you!</p>
+        </header>
+        <form action="" method="post">
+          {% csrf_token %}
+          <div class="field half first">
+            <label for="name">Name</label>
+            {{ form.name }}
+          </div>
+          <div class="field half">
+            <label for="email">Email</label>
+            {{ form.email }}
+          </div>
+          <div class="field">
+            <label for="message">Message</label>
+            {{ form.message }}
+          </div>
+          <ul class="actions">
+            <li><input type="submit" value="Send Message" class="alt" /></li>
+          </ul>
+        </form>
+      </div>
+    </section>
+</footer>
+{% endblock content %}

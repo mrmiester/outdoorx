@@ -1,0 +1,31 @@
+{% extends "master/base.html" %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}" />
+<section id="one" style="margin-bottom: -50px;">
+  <div class="inner">
+    <header class="major special">
+      <h1 style="text-align: center; font-family: potra; potra">Create Account
+      </h1>
+    </header>
+  </div>
+  
+</section>
+<section style="width: 40%; margin-left: auto; margin-right: auto; margin-top: 50px;">
+
+<form  method="post" action="{% url 'users:register' %}">
+	{% csrf_token %}
+	{{ form.as_p }}
+  <div style="margin-left: 230px; margin-top: 50px;" >
+    <button style="font-family: potra; potra" name="submit">log in</button>
+  </div>
+
+
+  <input type="hidden" name="next" value="{% url 'index' %}" />
+  </form>
+</section>
+ {% endblock content %}
+
+ 
+

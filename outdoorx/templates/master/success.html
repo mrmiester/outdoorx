@@ -1,0 +1,20 @@
+{% extends 'master/base.html'%}
+
+{% block content %}
+{% load static %}
+<script src="{% static 'js/index.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">
+<header>
+	<div class="overlay">
+<h1>OutdoorEx</h1>
+<h3>Another Reason to Get Out and Feel Free</h3>
+<p>We are primarily a service where you can explore and find free locations for to active depending on what your taste is or to try something new. Simply search for your area for any locations added by for fellow x's or add a new one! come and join the revolution for free activities, how it should be.</p>
+	<br>
+	<button>Get started. </button>
+		</div>
+</header>
+
+<h1>Well done! You've added a new location!</h1>
+
+
+{% endblock content %}

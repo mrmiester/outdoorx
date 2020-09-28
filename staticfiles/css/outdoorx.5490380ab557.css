@@ -1,0 +1,100 @@
+.background {
+    margin:0; padding:0;
+  }
+  .bg-color1 {background: #c0dbba;}
+  .bg-color2 {background: #66945d;}
+  .bg-color3 {background: #19540d;}
+
+  .navbar {
+    margin-bottom: 0;
+    border-radius: 0;
+    background-color: #eef0ee;
+    color: #FFF;
+    padding: 1% 0;
+    font-size: 1.2em;
+    border: 0;
+    text-align: center;
+    display: inline-block;
+  }
+      .navbar-brand img {      
+        float: left;
+        max-height: 100px;
+        padding: 0px 0px;
+      }
+  .navbar-brand {
+    float: left;
+    min-height: 55px;
+    padding: 0 15px 5px;
+  }
+  .navbar-inverse .navbar-nav .active a, a:focus, .navbar-inverse .navbar-nav .active a:hover {
+    color: #FFF;
+    background-color: #071704;
+  }
+  .navbar-inverse .navbar-nav li a {
+    color: #D5D5D5;
+  }
+ 
+  .carousel-caption {
+    top: 50%;
+    transform: translateY(-50%);
+    text-transform: uppercase;
+  }
+.carousel-inner > .item {
+   height: 400px; 
+}
+.carousel-inner > .item > img { width:100%;
+}
+
+  .btn {
+    font-size: 18px;
+    color: #FFF;
+    padding: 12px 22px;
+    background: #071704;
+    border: 2px solid #FFF;
+  }
+  #icon {
+    max-width: 200px;
+    margin: 1% auto; 
+  }
+  footer{
+    width: 100%;
+    background-color: #071704;
+    padding: 5%;
+    color: #FFF;
+  }
+  .fa {
+    padding: 15px;
+    font-size: 25px;
+    color: #FFF;
+  }
+  .fa:hover {
+    color: #D5D5D5;
+    text-decoration: none;
+  }
+  @media (max-with: 900px) {
+    .fa{
+    font-size: 20px;
+    padding: 10px
+  }
+}
+  @media (max-width: 600px) {
+    .carousel-caption {
+      display: none;
+    }
+    #icon {
+      max-width: 150px;
+    }
+    h2 {
+      font-size: 1.9em;
+    }
+  }
+.faction_box { height: 800px; }
+.card {
+    height: 400px; /* Your height here */
+    overflow: hidden;
+}
+
+.card-image {
+    height: 250px; /* Your height here */
+    overflow: hidden;
+}

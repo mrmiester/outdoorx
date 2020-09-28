@@ -1,0 +1,297 @@
+{% extends 'master/base.html' %}
+
+{% block content %}
+
+<html>
+  <head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/new_location.css' %}">
+    <script src="{% static 'js/bootstrap-tagsinput.min.js' %}"></script>
+    <style>
+      #description {
+        font-family: "Lato", sans-serif;
+        font-size: 15px;
+        font-weight: 300;
+      }
+
+      #infowindow-content .title {
+        font-weight: bold;
+      }
+
+      #infowindow-content {
+        display: none;
+      }
+
+      #map #infowindow-content {
+        display: inline;
+      }
+
+      .pac-card {
+        margin: 10px 10px 0 0;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        background-color: #fff;
+        font-family: "Lato", sans-serif;
+      }
+
+      #pac-container {
+        padding-bottom: 12px;
+        margin-right: 12px;
+      }
+
+      .pac-controls {
+        display: inline-block;
+        padding: 5px 11px;
+      }
+
+      .pac-controls label {
+        font-family: "Lato", sans-serif;
+        font-size: 13px;
+        font-weight: 300;
+      }
+
+      #pac-input {
+        background-color: #fff;
+        font-family: "Lato", sans-serif;
+        font-size: 15px;
+        font-weight: 300;
+        margin-left: 12px;
+        padding: 0 11px 0 13px;
+        text-overflow: ellipsis;
+        width: 400px;
+      }
+
+      #pac-input:focus {
+        border-color: #bb5361;
+      }
+
+      #title {
+        color: #fff;
+        background-color: #bb5361;
+        font-size: 25px;
+        font-weight: 500;
+        padding: 6px 12px;
+      }
+      #target {
+        width: 345px;
+      }
+       /* Set the size of the div element that contains the map */
+      #map {
+        height: 400px;  /* The height is 400 pixels */
+        width: 100%;  /* The width is the width of the web page */
+       }
+    </style>
+  </head>
+  <body>
+
+    <section id="one" style="margin-bottom: -50px;">
+      <div class="inner">
+        <header class="major special">
+          <h1 style="text-align: center; font-family: potra; potra">Add A new Location
+          </h1>
+        </header>
+
+      <div>
+        <h4 id="geotitle2" style="display: none;"></h4>   
+      </div>
+      <p style="text-transform:capitalize; font-weight: lighter; text-align: center;">Click on the map to add a marker the position of your location </br> the name of the location will be it's address</p>
+    </div>
+    </section>
+    <input id="pac-input" class="controls" type="text" placeholder="Search" style="text-align: center; margin-left: auto; margin-right: auto; margin-bottom: 50px;">
+    <div id="map"></div>
+    <div id="pac-input"></div>
+    
+    <script>
+      var map;
+      var markers = [];
+      var latlnginfo = [];
+      var latlng = [];
+      var geocodelatlng;
+      function initMap() {
+        var home = {lat: 51.801395, lng: -0.400562};
+         
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 12,
+          center: home,
+          mapTypeId: 'terrain'
+        });
+        var geocoder = new google.maps.Geocoder;
+        // This event listener will call addMarker() when the map is clicked.
+        map.addListener('click', function(event) {
+          geocoder.geocode({'location': event.latLng}, function(results, status) {
+            if (status === 'OK'){
+              if (results[0]) {
+                document.getElementById("geotitle2").innerHTML = String(results[0].formatted_address);
+                document.getElementById("geotitle4").value = String(results[0].formatted_address);
+              } else { 
+                document.getElementById("georesponse").innerHTML = ('No Geocode results Available');}
+            } else{ 
+                document.getElementById("georesponse").style.display = "block"
+                document.getElementById("georesponse").innerHTML = ('No Geocode location available due to' + status);}
+          });
+          addMarker(event.latLng);
+          latlng.push(event.latlng);
+          document.getElementById('latlng').value = event.latLng.lat() + ', ' + event.latLng.lng();
+          document.getElementById('lat').value = event.latLng.lat();
+          document.getElementById('lng').value = event.latLng.lng();
+          var lat = parseFloat(event.latLng.lat());
+          var lng = parseFloat(event.latLng.lng());
+          var helper = fillLatLon(lat,lng);
+          var change = "displayResult()";
+          change = "displayResult()";
+          geocodelatlng = event.latlng.lat().value;
+          var geocoderlatlngStr = input.split(',',2);
+          
+        });
+
+        // Create the search box and link it to the UI element.
+        var input = document.getElementById('pac-input');
+        var searchBox = new google.maps.places.SearchBox(input);
+
+
+        
+
+        // Bias the SearchBox results towards current map's viewport.
+        map.addListener('bounds_changed', function() {
+          searchBox.setBounds(map.getBounds());
+        });
+
+        var premarkers = [];
+        // Listen for the event fired when the user selects a prediction and retrieve
+        // more details for that place.
+        searchBox.addListener('places_changed', function() {
+          var places = searchBox.getPlaces();
+
+          if (places.length == 0) {
+            return;
+          }
+
+          // Clear out the old markers.
+          premarkers.forEach(function(marker) {
+            marker.setMap(null);
+          });
+          premarkers = [];
+
+          // For each place, get the icon, name and location.
+          var bounds = new google.maps.LatLngBounds();
+          places.forEach(function(place) {
+            if (!place.geometry) {
+              console.log("Returned place contains no geometry");
+              return;
+            }
+            var icon = {
+              url: place.icon,
+              size: new google.maps.Size(71, 71),
+              origin: new google.maps.Point(0, 0),
+              anchor: new google.maps.Point(17, 34),
+              scaledSize: new google.maps.Size(25, 25)
+            };
+
+            // Create a marker for each place.
+            premarkers.push(new google.maps.Marker({
+              map: map,
+              icon: icon,
+              title: place.name,
+              position: place.geometry.location
+            }));
+
+            if (place.geometry.viewport) {
+              // Only geocodes have viewport.
+              bounds.union(place.geometry.viewport);
+            } else {
+              bounds.extend(place.geometry.location);
+            }
+          });
+          map.fitBounds(bounds);
+        });
+        
+
+      }
+      // Fills lat & lng textbox with values from mouse click
+      function fillLatLon(lat,lng){
+        $('#latbox').val(lat);
+        $('#lngbox').val(lng);
+      }
+      function fillgeotitle(geocoderoutput){
+        $('#geotitle').String(geocoderoutput);
+      }
+      // Adds a marker to the map and push to the array.
+      function addMarker(location) {
+        var lat = location.lat();
+        var lng = location.lng();
+        fillLatLon(lat,lng)
+        deleteMarkers()
+        var marker = new google.maps.Marker({
+          position: location,
+          map: map,
+          icon: 'https://img.icons8.com/ios/50/000000/marker-x.png'
+        });
+        markers.push(marker);
+        latlnginfo.push({"latlnginfo" :location });
+      }
+      // Sets the map on all markers in the array.
+      function setMapOnAll(map) {
+        for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(map);
+        }
+      }
+
+      // Removes the markers from the map, but keeps them in the array.
+      function clearMarkers() {
+        setMapOnAll(null);
+      }
+
+      // Shows any markers currently in the array.
+      function showMarkers() {
+        setMapOnAll(map);
+      }
+
+      // Deletes all markers in the array by removing references to them.
+      function deleteMarkers() {
+        clearMarkers();
+        markers = [];
+      }
+
+
+    </script>
+    <!--Load the API from the specified URL
+    * The async attribute allows the browser to render the page while the API loads
+    * The key parameter will contain your own API key (which is not needed for this tutorial)
+    * The callback parameter executes the initMap() function
+    -->
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWr2wYPjowOdfbiaxKMaY9-C0BLkn4Xts&libraries=places&callback=initMap">
+    </script>
+
+
+
+</form>
+
+<section style="width: 40%; margin-left: auto; margin-right: auto; margin-top: 50px;">
+ 
+    <!-- Upload form. Note enctype attribute! -->
+    <form action="" method="post" enctype="multipart/form-data" >
+      {% csrf_token %}
+      <div class="fieldWrapper">
+        {{ form.longitude.as_p }}
+        {{ form.latitude.as_p }}
+      </div>
+
+
+        {{ form.as_p}}
+        <h5>Images:</h5>
+        <input label="Photos" type="file" name="images" multiple>
+      <div id="inner" style="text-align: center; margin-top: 10px;">
+      <input type="submit" value="Submit" />
+    </div>
+    </form>
+  </section>
+  </body>
+</html>
+
+{% endblock content %}
+
+

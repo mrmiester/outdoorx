@@ -1,0 +1,25 @@
+{% extends 'master/base.html'%}
+{% block content %}
+
+
+<div class="background bg-color1">
+  <div class="container text-center" height="600px"> 
+    <h2>Join a faction, Fight for What you Believe in and Realise your Identity</h2>
+    <div class = "row">
+      <div style = "height: 600px;">
+    {% for faction in factions %}
+      <div id="faction_box" class="faction_box">
+        <div class ="col-sm-4" style="background-color: {{ faction.color }}; height: 400px">
+
+          <h3>{{ faction.name }}</h3>
+          <h4>{{ faction.desc }}</h4>
+          <img src ="{{ faction.image }}" height="200px">
+        </div>
+      </div>
+     {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

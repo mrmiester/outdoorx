@@ -1,0 +1,182 @@
+{% extends 'master/base.html' %}
+
+{% block content %}
+{% load static %}
+{% load ratings %}
+  <head>
+    <script>
+      var markers=[];
+      var latitude = [];
+      var longitude = [];
+      var title = [];
+      var description = [];
+
+        longitude.push("{{ location.longitude }}");
+        latitude.push("{{ location.latitude }}");
+        title.push("{{ location.title }}");
+        latitude.push("{{ location.latitude }}");
+        markers.push({
+        "title": "{{ location.title }}",
+        "latitude": "{{ location.latitude }}",
+        "longitude": "{{ location.longitude }}",
+        "description": "{{ location.description }}",
+      },)
+    </script>
+  </head>
+
+<section id="banner" style="background-image: url({{ location.images.first.image.url }})" >
+  <div class="inner" >
+    <h1><span>{{ location.title }} <br/>
+      <p style="color:rgb(187, 235, 235)">Location Type: {{location.type_of_location}}<br/>
+      Excercise Type: {{location.type_of_excercise}}</p></h1>
+      </span></>
+    <ul class="actions">
+      <li><a href="#description" class="button alt">Description</a></li>
+      <li><a href="#map" class="button alt">Map View</a>
+      <li><a href="#three" class="button alt">Tags</a></li>
+      <li><a href="#three2" class="button alt">Gallery</a></li>
+    </ul>
+  </div>
+</section>
+
+<!-- One -->
+<section id="one">
+<style>
+  /* Set the size of the div element that contains the map */
+ #map {
+   height: 400px;  /* The height is 400 pixels */
+   width: 100%;
+   align-content: center;  /* The width is the width of the web page */
+  }
+  
+</style>
+</head>
+
+<!--The div element for the map -->
+<style>
+ #content {
+width: 800px;
+margin-left: auto;
+margin-right: auto;
+}
+</style>
+  <div class="inner" id="content">
+    <div id="map">
+    </div>
+  </div>
+  <div id="description" class="inner" style="margin-top: 30px">
+    <header>
+      <h2 style="font-family: potra; potra;">Information</h2>
+
+    </header>
+    <ul>Coordinates: {{location.latitude|floatformat:5 }}, {{ location.longitude|floatformat:5 }}</ul>
+    <ul>Date Added: {{ location.date_added }}</ul> 
+    <ul>Accuracy rating:</ul>
+    <ul>Site rating:</ul>
+    <h2 style="font-family: potra; potra;">Description</h2>
+    <ul>{{ location.description }}</ul>
+    <ul style="font-weight: bold;">Added by:   {{ location.owner }}</ul>
+    <h3 style="font-family: potra;">Comments</h3>
+    {% for comment in comments %}
+        <div class="comments" style="padding: 10px;">
+          <p class="font-weight-bold" style="font-weight: bold;">
+            {{ comment.owner }}
+            <span class=" text-muted font-weight-normal">
+              {{ comment.date_added }}
+            </span>
+          </p>
+          {{ comment.body | linebreaks }}
+        </div>
+        {% endfor %}
+        <div class="col-md-8 card mb-4  mt-3 ">
+          <div class="card-body">
+            {% if new_comment %}
+            <div class="alert alert-success" role="alert">
+              Your comment is awaiting moderation
+            </div>
+            {% else %}
+            <h4 style="font-family: potra;">Leave a comment</h4>
+            <form  method="post" action="{% url 'location' location_id=location.id %}">
+              {{ form.as_p }}
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary  btn-lg" style="margin-top: 20px;">Submit</button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+<script>
+</script>
+
+  </div>
+</form>
+  </div>
+</section>
+<script>
+ latitude;
+ longitude;
+ title;
+ description;
+ markers;
+ var map;
+ function initMap() {
+   map = new google.maps.Map(
+       document.getElementById('map'),
+       {center: new google.maps.LatLng(parseFloat(markers[0].latitude), parseFloat(markers[0].longitude)), zoom: 11
+       });
+
+   var infoWindow = new google.maps.InfoWindow();
+
+   for (var i = 0; i < markers.length; i++) {
+     var data = markers[i];
+     var marker = new google.maps.Marker({
+       position: {lat: parseFloat(data.latitude), lng: parseFloat(data.longitude)},
+       map: map,
+       title: data.title,
+       icon: 'https://img.icons8.com/ios/50/000000/marker-x.png'
+     });
+     (function (marker, data) {
+           google.maps.event.addListener(marker, "click", function (e) {
+               //Wrap the content inside an HTML DIV in order to set height and width of InfoWindow.
+               infoWindow.setContent("<div style = 'width:200px;min-height:40px'>" +'<p style="font-weight: bold;">'+ data.title +'</p>' + '<body>' + parseFloat(data.latitude) + ' ,' + parseFloat(data.longitude) + '</body>' + "</div>");
+               infoWindow.open(map, marker);
+           });
+       })(marker, data); 
+   }
+}
+
+</script>
+<section id="three" style="background-color:darkslategray;">
+  <h2 style="font-family: potra; potra; text-align: center;">Tags</h2>
+  <h6 style="text-align: center;">These should include attributes about a location such as equipment, activities done there etc </h6>
+  <div class="inner" ;" >
+    <ul class="actions">
+      <li>
+        {% for tag in location.tags.all %}
+        <a href="#" class="button alt" style="color: whitesmoke; margin-top: 10px;">#{{ tag }}</a>
+        {% endfor %}<a href="#" class="button alt">Add More</a></li>
+    </ul>
+  </div>
+  </div>
+</section>
+{% if location.images.first %}
+<section id="three2" style="background-color: black; height: fit-content;">
+  <h2 style="font-family: potra; potra; text-align: center;padding: 50px;">Gallery</h2>
+  <div class="inner">
+    {% for image in location.images.all %}
+    <img src="{{ image.image.url }}" style="height: 300px ; width: 300px;">
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+<section id="three2" style="background-color: black; height: 500px;">
+  <h2 style="font-family: potra; potra; text-align: center;">Gallery</h2>
+  <div class="inner">
+    <p> No images to display :(</p>
+  </div>
+  </section>
+{% endif %}
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWr2wYPjowOdfbiaxKMaY9-C0BLkn4Xts&callback=initMap">
+</script>
+{{ queryform.as_p }}
+{% endblock content %}
